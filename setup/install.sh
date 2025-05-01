@@ -11,7 +11,8 @@ done
 # Make sure ~/bin is in PATH
 if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
     echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"
-    source "$HOME/.bashrc"
+    echo "Added ~/bin to PATH in .bashrc. To use it in this session, run:"
+    echo "source ~/.bashrc"
 fi
 
 # Install required packages
