@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# wav2mp3 - Convert WAV files to high-quality MP3 with LUFS analysis
+# Usage: wav2mp3 file1.wav file2.wav ...
+
+# Check if required tools are installed
+for cmd in bs1770gain ffmpeg; do
+    if ! command -v $cmd &> /dev/null; then
+        echo "Error: $cmd is not installed. Please install it first."
+        echo "sudo apt install $cmd"
+        exit 1
+    fi
+done
+
+# Check if arguments are provided
+if [ $# -eq 0 ]; then
+    echo "Usage: wav2mp3 file1.wav file2.wav ..."
+    echo "       wav2mp3 *.wav"
+    exit 1
+fi
+
+# Check if all files exist and are WAV files
+for file in "$@"; do
+    if [ ! -f "$file" ]; then
+        echo "Error: File '$file' does not exist."
+        exit 1
+    fi
+    
+    if [[ ! "$file" =~ \.wav$ ]]; then
+        echo "Error: '$file' is not a WAV file."
+        exit 1
+    fi
+done
+
+echo "=== LUFS Analysis ==="
+# Run bs1770gain to analyze LUFS (faster than ffmpeg for multiple files)
+bs1770gain -l "$@"
+
+echo -e "\n=== Converting to MP3 ==="
+# Process each WAV file
+for input_file in "$@"; do
+    output_file="${input_file%.wav}.mp3"
+    echo "Converting: $input_file -> $output_file"
+    
+    # Convert to MP3 using ffmpeg with highest quality settings
+    ffmpeg -i "$input_file" -c:a libmp3lame -q:a 0 "$output_file" -hide_banner -loglevel warning
+    
+    if [ $? -eq 0 ]; then
+        echo "✓ Successfully converted to $output_file"
+    else
+        echo "✗ Failed to convert $input_file"
+    fi
+done
+
+echo -e "\nAll conversions completed!"
