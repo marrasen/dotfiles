@@ -34,7 +34,7 @@ done
 
 echo "=== LUFS Analysis ==="
 # Run bs1770gain to analyze LUFS (faster than ffmpeg for multiple files)
-bs1770gain -l "$@"
+bs1770gain "$@"
 
 echo -e "\n=== Converting to MP3 ==="
 # Process each WAV file
